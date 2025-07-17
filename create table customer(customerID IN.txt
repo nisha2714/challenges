@@ -1,0 +1,89 @@
+create table customer(customerID INT PRIMARY KEY, Name VARCHAR(20), Email VARCHAR(20) UNIQUE, Phone VARCHAR(15));
+
+CREATE TABLE Accounts (
+    AccountID INT PRIMARY KEY,
+    CustomerID INT,
+    AccountType VARCHAR(20),  
+    Balance DECIMAL(10,2) DEFAULT 0.00,
+    FOREIGN KEY (CustomerID) REFERENCES Customers(CustomerID)
+);
+
+CREATE TABLE Transactions (
+    TransactionID INT PRIMARY KEY,
+    AccountID INT,
+    TransactionType VARCHAR(10),  -- Credit or Debit
+    Amount DECIMAL(10,2),
+    TransactionDate DATE,
+    FOREIGN KEY (AccountID) REFERENCES Accounts(AccountID)
+);
+
+Insert customers
+INSERT INTO Customers VALUES (1, 'Ravi', 'ravi@example.com', '9876543210');
+INSERT INTO Customers VALUES (2, 'Sita', 'sita@example.com', '8765432109');
+
+NSERT INTO Accounts VALUES (101, 1, 'Savings', 5000.00);
+INSERT INTO Accounts VALUES (102, 1, 'Current', 10000.00);
+INSERT INTO Accounts VALUES (103, 2, 'Savings', 8000.00);
+
+INSERT INTO Transactions VALUES (1001, 101, 'Credit', 1000.00, '2025-07-01');
+INSERT INTO Transactions VALUES (1002, 101, 'Debit', 500.00, '2025-07-02');
+INSERT INTO Transactions VALUES (1003, 103, 'Credit', 2000.00, '2025-07-03');
+
+
+QUERIES:--------
+
+1)SELECT A.AccountID, C.Name, A.AccountType, A.Balance
+FROM Accounts A
+JOIN Customers C ON A.CustomerID = C.CustomerID;
+
+2)SELECT T.TransactionID, C.Name, A.AccountType, T.TransactionType, T.Amount, T.TransactionDate
+FROM Transactions T
+JOIN Accounts A ON T.AccountID = A.AccountID
+JOIN Customers C ON A.CustomerID = C.CustomerID;
+
+3)SELECT C.Name, SUM(A.Balance) AS TotalBalance
+FROM Customers C
+JOIN Accounts A ON C.CustomerID = A.CustomerID
+GROUP BY C.Name;
+
+4)UPDATE Accounts
+SET Balance = Balance + 2000
+WHERE AccountID = 101;
+
+
+
+
+
+Challenge Problems
+ 
+1. Write a query to get customers who have more than one account.
+SELECT C.Name, COUNT(A.AccountID) AS NumberOfAccounts
+FROM Customers C
+JOIN Accounts A ON C.CustomerID = A.CustomerID
+GROUP BY C.Name
+HAVING COUNT(A.AccountID) > 1;
+
+ 
+ 
+2. Write a query to show total credited and debited amount per account.
+SELECT 
+    AccountID,
+    SUM(CASE WHEN TransactionType = 'Credit' THEN Amount ELSE 0 END) AS TotalCredited,
+    SUM(CASE WHEN TransactionType = 'Debit' THEN Amount ELSE 0 END) AS TotalDebited
+FROM Transactions
+GROUP BY AccountID;
+
+ 
+ 
+3. Add a new column BranchName to the Accounts table.
+ALTER TABLE Accounts
+ADD BranchName VARCHAR(50);
+
+ 
+ 
+4. Delete all transactions older than 6 months.
+DELETE FROM Transactions
+WHERE TransactionDate < CURRENT_DATE - INTERVAL '6 MONTH';
+
+ 
+ 
