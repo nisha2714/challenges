@@ -68,10 +68,13 @@ HAVING COUNT(A.AccountID) > 1;
 2. Write a query to show total credited and debited amount per account.
 SELECT 
     AccountID,
-    SUM(CASE WHEN TransactionType = 'Credit' THEN Amount ELSE 0 END) AS TotalCredited,
-    SUM(CASE WHEN TransactionType = 'Debit' THEN Amount ELSE 0 END) AS TotalDebited
-FROM Transactions
+    (SELECT SUM(Amount) FROM Transactions T1 
+     WHERE T1.AccountID = T.AccountID AND T1.TransactionType = 'Credit') AS TotalCredited,
+    (SELECT SUM(Amount) FROM Transactions T2 
+     WHERE T2.AccountID = T.AccountID AND T2.TransactionType = 'Debit') AS TotalDebited
+FROM Transactions T
 GROUP BY AccountID;
+
 
  
  
